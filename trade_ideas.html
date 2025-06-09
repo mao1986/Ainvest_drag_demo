@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Ideas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .chevron {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .chevron:hover {
+            opacity: 1;
+        }
+
+        .cards-container {
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .cards-container:active {
+            cursor: grabbing;
+        }
+
+        .cards-wrapper {
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s ease;
+            will-change: transform;
+        }
+
+        .trade-card {
+            min-width: 320px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+
+        .trade-card:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stock-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .stock-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .stock-details h3:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .stock-price {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .bullish-tag {
+            background: #10b981;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .metrics {
+            margin-bottom: 20px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .metric-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #10b981;
+        }
+
+        .trading-levels {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .level {
+            flex: 1;
+            text-align: center;
+        }
+
+        .level-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .level-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .level-icon {
+            width: 12px;
+            height: 12px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: black;
+            color: white;
+            flex: 0.6;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            flex: 1.4;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        .info-icon {
+            width: 12px;
+            height: 12px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .trade-card {
+                min-width: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trade Ideas</h1>
+            <svg class="chevron" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        
+        <div class="cards-container" id="cardsContainer">
+            <div class="cards-wrapper" id="cardsWrapper">
+                <!-- TSLA Card -->
+                <div class="trade-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <div class="stock-logo">TSLA</div>
+                            <div class="stock-details">
+                                <h3 onclick="openGoogle()">TSLA</h3>
+                                <div class="stock-price">$259.09</div>
+                            </div>
+                        </div>
+                        <div class="bullish-tag">Bullish</div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric-row">
+                            <div class="metric-label">
+                                Est.Gain
+                                <svg class="info-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="metric-value">+16.20%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trading-levels">
+                        <div class="level">
+                            <div class="level-label">Entry Now</div>
+                            <div class="level-value">
+                                <span>—</span>
+                                260.45
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Exit Target</div>
+                            <div class="level-value">
+                                <span>↗</span>
+                                300.92
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Stop Loss</div>
+                            <div class="level-value">
+                                <span>↘</span>
+                                258.32
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="https://www.google.com" target="_blank" class="btn btn-primary">Trade Now</a>
+                        <a href="https://www.google.com" target="_blank" class="btn btn-secondary">Add to Watchlist</a>
+                    </div>
+                </div>
+                
+                <!-- AAPL Card -->
+                <div class="trade-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <div class="stock-logo" style="background: linear-gradient(135deg, #007AFF, #5856D6);">AAPL</div>
+                            <div class="stock-details">
+                                <h3 onclick="openGoogle()">AAPL</h3>
+                                <div class="stock-price">$189.84</div>
+                            </div>
+                        </div>
+                        <div class="bullish-tag">Bullish</div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric-row">
+                            <div class="metric-label">
+                                Est.Gain
+                                <svg class="info-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="metric-value">+12.50%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trading-levels">
+                        <div class="level">
+                            <div class="level-label">Entry Now</div>
+                            <div class="level-value">
+                                <span>—</span>
+                                189.84
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Exit Target</div>
+                            <div class="level-value">
+                                <span>↗</span>
+                                213.57
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Stop Loss</div>
+                            <div class="level-value">
+                                <span>↘</span>
+                                185.20
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="https://www.google.com" target="_blank" class="btn btn-primary">Trade Now</a>
+                        <a href="https://www.google.com" target="_blank" class="btn btn-secondary">Add to Watchlist</a>
+                    </div>
+                </div>
+                
+                <!-- NVDA Card -->
+                <div class="trade-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <div class="stock-logo" style="background: linear-gradient(135deg, #76B900, #43A047);">NVDA</div>
+                            <div class="stock-details">
+                                <h3 onclick="openGoogle()">NVDA</h3>
+                                <div class="stock-price">$891.23</div>
+                            </div>
+                        </div>
+                        <div class="bullish-tag">Bullish</div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric-row">
+                            <div class="metric-label">
+                                Est.Gain
+                                <svg class="info-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="metric-value">+18.75%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trading-levels">
+                        <div class="level">
+                            <div class="level-label">Entry Now</div>
+                            <div class="level-value">
+                                <span>—</span>
+                                891.23
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Exit Target</div>
+                            <div class="level-value">
+                                <span>↗</span>
+                                1058.34
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Stop Loss</div>
+                            <div class="level-value">
+                                <span>↘</span>
+                                875.60
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="https://www.google.com" target="_blank" class="btn btn-primary">Trade Now</a>
+                        <a href="https://www.google.com" target="_blank" class="btn btn-secondary">Add to Watchlist</a>
+                    </div>
+                </div>
+                
+                <!-- MSFT Card -->
+                <div class="trade-card">
+                    <div class="stock-header">
+                        <div class="stock-info">
+                            <div class="stock-logo" style="background: linear-gradient(135deg, #0078D4, #106EBE);">MSFT</div>
+                            <div class="stock-details">
+                                <h3 onclick="openGoogle()">MSFT</h3>
+                                <div class="stock-price">$412.56</div>
+                            </div>
+                        </div>
+                        <div class="bullish-tag">Bullish</div>
+                    </div>
+                    
+                    <div class="metrics">
+                        <div class="metric-row">
+                            <div class="metric-label">
+                                Est.Gain
+                                <svg class="info-icon" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="metric-value">+14.30%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="trading-levels">
+                        <div class="level">
+                            <div class="level-label">Entry Now</div>
+                            <div class="level-value">
+                                <span>—</span>
+                                412.56
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Exit Target</div>
+                            <div class="level-value">
+                                <span>↗</span>
+                                471.55
+                            </div>
+                        </div>
+                        <div class="level">
+                            <div class="level-label">Stop Loss</div>
+                            <div class="level-value">
+                                <span>↘</span>
+                                405.20
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="https://www.google.com" target="_blank" class="btn btn-primary">Trade Now</a>
+                        <a href="https://www.google.com" target="_blank" class="btn btn-secondary">Add to Watchlist</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 横向拖拽功能
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let currentTranslate = 0;
+        let maxTranslate = 0;
+        
+        // 排序功能相关变量
+        let isSortMode = false;
+        let longPressTimer = null;
+        let draggedCard = null;
+        let draggedIndex = -1;
+        let cards = [];
+        let placeholder = null;
+
+        const container = document.getElementById('cardsContainer');
+        const wrapper = document.getElementById('cardsWrapper');
+
+        // 初始化卡片数组
+        function initCards() {
+            cards = Array.from(wrapper.querySelectorAll('.trade-card'));
+        }
+
+        // 计算最大可滑动距离
+        function calculateMaxTranslate() {
+            const containerWidth = container.offsetWidth;
+            const wrapperWidth = wrapper.scrollWidth;
+            maxTranslate = Math.max(0, wrapperWidth - containerWidth);
+        }
+
+        // 创建占位符
+        function createPlaceholder() {
+            placeholder = document.createElement('div');
+            placeholder.className = 'trade-card placeholder';
+            placeholder.style.cssText = `
+                min-width: 320px;
+                background: rgba(0, 0, 0, 0.1);
+                border: 2px dashed #ccc;
+                border-radius: 12px;
+                opacity: 0.5;
+                flex-shrink: 0;
+                transition: all 0.3s ease;
+            `;
+            return placeholder;
+        }
+
+        // 进入排序模式
+        function enterSortMode(card) {
+            isSortMode = true;
+            container.style.cursor = 'grabbing';
+            wrapper.style.transition = 'none';
+            
+            // 为当前拖拽的卡片添加样式
+            card.style.cssText += `
+                position: fixed;
+                z-index: 1000;
+                transform: scale(1.05);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                transition: none;
+                pointer-events: none;
+                width: 320px;
+            `;
+            
+            // 创建并插入占位符
+            const placeholder = createPlaceholder();
+            card.parentNode.insertBefore(placeholder, card.nextSibling);
+            
+            draggedCard = card;
+            draggedIndex = cards.indexOf(card);
+            
+            // 显示排序提示
+            showSortHint();
+        }
+
+        // 退出排序模式
+        function exitSortMode() {
+            isSortMode = false;
+            container.style.cursor = 'grab';
+            wrapper.style.transition = 'transform 0.3s ease';
+            
+            if (draggedCard) {
+                // 重置卡片样式
+                draggedCard.style.cssText = draggedCard.style.cssText.replace(/position:.*?;|z-index:.*?;|transform:.*?;|box-shadow:.*?;|transition:.*?;|pointer-events:.*?;|width:.*?;|left:.*?;|top:.*?;/g, '');
+                draggedCard = null;
+            }
+            
+            // 移除占位符
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.removeChild(placeholder);
+                placeholder = null;
+            }
+            
+            draggedIndex = -1;
+            hideSortHint();
+        }
+
+        // 显示排序提示
+        function showSortHint() {
+            let hint = document.getElementById('sortHint');
+            if (!hint) {
+                hint = document.createElement('div');
+                hint.id = 'sortHint';
+                hint.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    z-index: 10000;
+                    pointer-events: none;
+                `;
+                hint.textContent = '排序模式：拖拽卡片进行重新排序';
+                document.body.appendChild(hint);
+            }
+        }
+
+        // 隐藏排序提示
+        function hideSortHint() {
+            const hint = document.getElementById('sortHint');
+            if (hint) {
+                hint.remove();
+            }
+        }
+
+        // 获取鼠标位置下的卡片索引
+        function getCardIndexAtPosition(x) {
+            const cardElements = wrapper.querySelectorAll('.trade-card:not(.placeholder)');
+            for (let i = 0; i < cardElements.length; i++) {
+                const rect = cardElements[i].getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        // 重新排列卡片
+        function reorderCards(fromIndex, toIndex) {
+            if (fromIndex === toIndex) return;
+            
+            const cardToMove = cards[fromIndex];
+            cards.splice(fromIndex, 1);
+            cards.splice(toIndex, 0, cardToMove);
+            
+            // 添加过渡动画
+            wrapper.style.transition = 'all 0.3s ease';
+            
+            // 重新排列DOM
+            wrapper.innerHTML = '';
+            cards.forEach(card => {
+                wrapper.appendChild(card);
+            });
+            
+            // 更新占位符位置
+            if (placeholder) {
+                const targetCard = cards[toIndex];
+                if (toIndex < cards.length - 1) {
+                    wrapper.insertBefore(placeholder, cards[toIndex + 1]);
+                } else {
+                    wrapper.appendChild(placeholder);
+                }
+            }
+            
+            // 短暂延迟后移除过渡效果，避免影响拖拽
+            setTimeout(() => {
+                if (isSortMode) {
+                    wrapper.style.transition = 'none';
+                }
+            }, 300);
+        }
+
+        // 初始化
+        initCards();
+        calculateMaxTranslate();
+        window.addEventListener('resize', () => {
+            calculateMaxTranslate();
+            initCards();
+        });
+
+        // 鼠标事件处理
+        container.addEventListener('mousedown', (e) => {
+            // 检查是否点击在卡片上
+            const card = e.target.closest('.trade-card');
+            if (card) {
+                // 开始长按计时
+                longPressTimer = setTimeout(() => {
+                    enterSortMode(card);
+                }, 500);
+            }
+            
+            isDown = true;
+            container.style.cursor = 'grabbing';
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = currentTranslate;
+            
+            if (!isSortMode) {
+                wrapper.style.transition = 'none';
+            }
+        });
+
+        container.addEventListener('mouseleave', () => {
+            clearTimeout(longPressTimer);
+            if (!isSortMode) {
+                isDown = false;
+                container.style.cursor = 'grab';
+                wrapper.style.transition = 'transform 0.3s ease';
+            }
+        });
+
+        container.addEventListener('mouseup', () => {
+            clearTimeout(longPressTimer);
+            
+            if (isSortMode) {
+                exitSortMode();
+            }
+            
+            isDown = false;
+            container.style.cursor = 'grab';
+            wrapper.style.transition = 'transform 0.3s ease';
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            
+            // 清除长按计时器（移动时取消长按）
+            clearTimeout(longPressTimer);
+            
+            if (isSortMode && draggedCard) {
+                 // 排序模式下的拖拽
+                 e.preventDefault();
+                 
+                 // 让卡片跟随鼠标移动
+                 const rect = draggedCard.getBoundingClientRect();
+                 draggedCard.style.left = (e.clientX - rect.width / 2) + 'px';
+                 draggedCard.style.top = (e.clientY - rect.height / 2) + 'px';
+                 
+                 const newIndex = getCardIndexAtPosition(e.pageX);
+                 
+                 if (newIndex !== -1 && newIndex !== draggedIndex) {
+                     reorderCards(draggedIndex, newIndex);
+                     draggedIndex = newIndex;
+                 }
+             } else if (!isSortMode) {
+                // 普通滑动模式
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                currentTranslate = Math.max(-maxTranslate, Math.min(0, scrollLeft + walk));
+                wrapper.style.transform = `translateX(${currentTranslate}px)`;
+            }
+        });
+
+        // 触摸设备支持
+        container.addEventListener('touchstart', (e) => {
+            const card = e.target.closest('.trade-card');
+            if (card) {
+                longPressTimer = setTimeout(() => {
+                    enterSortMode(card);
+                }, 500);
+            }
+            
+            isDown = true;
+            startX = e.touches[0].pageX - container.offsetLeft;
+            scrollLeft = currentTranslate;
+            
+            if (!isSortMode) {
+                wrapper.style.transition = 'none';
+            }
+        });
+
+        container.addEventListener('touchend', () => {
+            clearTimeout(longPressTimer);
+            
+            if (isSortMode) {
+                exitSortMode();
+            }
+            
+            isDown = false;
+            wrapper.style.transition = 'transform 0.3s ease';
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            
+            clearTimeout(longPressTimer);
+            
+            if (isSortMode && draggedCard) {
+                 e.preventDefault();
+                 const touch = e.touches[0];
+                 
+                 // 让卡片跟随触摸移动
+                 const rect = draggedCard.getBoundingClientRect();
+                 draggedCard.style.left = (touch.clientX - rect.width / 2) + 'px';
+                 draggedCard.style.top = (touch.clientY - rect.height / 2) + 'px';
+                 
+                 const newIndex = getCardIndexAtPosition(touch.pageX);
+                 
+                 if (newIndex !== -1 && newIndex !== draggedIndex) {
+                     reorderCards(draggedIndex, newIndex);
+                     draggedIndex = newIndex;
+                 }
+             } else if (!isSortMode) {
+                e.preventDefault();
+                const x = e.touches[0].pageX - container.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                currentTranslate = Math.max(-maxTranslate, Math.min(0, scrollLeft + walk));
+                wrapper.style.transform = `translateX(${currentTranslate}px)`;
+            }
+        });
+
+        // 股票名称点击跳转
+        function openGoogle() {
+            window.open('https://www.google.com', '_blank');
+        }
+
+        // 防止拖拽时触发点击事件
+        let isDragging = false;
+        let dragStartTime = 0;
+
+        container.addEventListener('mousedown', () => {
+            isDragging = false;
+            dragStartTime = Date.now();
+        });
+
+        container.addEventListener('mousemove', () => {
+            if (Date.now() - dragStartTime > 100) {
+                isDragging = true;
+            }
+        });
+
+        // 为股票名称添加点击事件监听
+        document.querySelectorAll('.stock-details h3').forEach(element => {
+            element.addEventListener('click', (e) => {
+                if (!isDragging && !isSortMode) {
+                    openGoogle();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
